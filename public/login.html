@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Connexion</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 32px 48px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 24px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin: 16px 0 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 13px;
+      background-color: #2575fc;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1a5de4;
+    }
+
+    #error {
+      color: red;
+      margin-top: 17px;
+    }
+
+    .link {
+      margin-top: 18px;
+      font-size: 16px;
+    }
+
+    .link a {
+      color: #2575fc;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+   
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Connexion</h2>
+    <form id="loginForm">
+      <label for="username">Pseudo</label>
+      <input type="text" id="username" required />
+
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" required />
+
+      <button type="submit">Se connecter</button>
+    </form>
+    <p id="error"></p>
+    <p class="link">Pas encore inscrit ? <a href="register.html">Créer un compte</a></p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const form = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const error = document.getElementById('error');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      error.textContent = '';
+      socket.emit('login', {
+        username: usernameInput.value.trim(),
+        password: passwordInput.value.trim()
+      });
+    });
+
+    socket.on('login success', username => {
+      sessionStorage.setItem('username', username);
+      window.location.href = 'chat.html';
+    });
+
+    socket.on('login error', msg => {
+      error.textContent = msg;
+    });
+  </script>
+</body>
+</html>

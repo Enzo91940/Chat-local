@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background: #007bff;
+      color: #fff;
+      text-align: center;
+      padding: 16px;
+    }
+
+    #messages {
+      flex: 1;
+      margin: 0;
+      padding: 1px;
+      list-style: none;
+      background: #f0f0f0;
+    }
+
+    #messages li {
+      margin-bottom: 6px;
+      padding: 6px;
+      background: #e0e0e0;
+      border-radius: 4px;
+    }
+
+    form {
+      display: flex;
+      padding: 6px;
+      background: #ddd;
+    }
+
+    #input {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 6px 16px;
+      margin-left: 6px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Chat local</h1>
+  </header>
+
+  <ul id="messages"></ul>
+
+  <form id="form">
+    <input id="input" autocomplete="off" placeholder="Tape ton message..." />
+    <button>Envoyer</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const username = sessionStorage.getItem('username');
+    if (!username) window.location.href = 'login.html';
+
+    socket.emit('reconnect username', username);
+
+    const messages = document.getElementById('messages');
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+
+    messages.innerHTML += `<li>Bienvenue ${username} !</li>`;
+
+    socket.on('chat message', (msg) => {
+      const item = document.createElement('li');
+      item.textContent = msg;
+      messages.appendChild(item);
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const msg = input.value.trim();
+      if (msg) {
+        socket.emit('chat message', msg);
+        input.value = '';
+      }
+    });
+  </script>
+</body>
+</html>
