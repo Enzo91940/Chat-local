@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Chat</title>
+
   <style>
     body {
       margin: 0;
@@ -22,9 +23,10 @@
     #messages {
       flex: 1;
       margin: 0;
-      padding: 1px;
+      padding: 8px;
       list-style: none;
       background: #f0f0f0;
+      overflow-y: auto;
     }
 
     #messages li {
@@ -40,7 +42,7 @@
       background: #ddd;
     }
 
-    #input {
+    #champMessage {
       flex: 1;
       padding: 6px;
       border: 1px solid #ccc;
@@ -58,6 +60,7 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>Chat local</h1>
@@ -65,38 +68,48 @@
 
   <ul id="messages"></ul>
 
-  <form id="form">
-    <input id="input" autocomplete="off" placeholder="Tape ton message..." />
+  <form id="formulaireMessage">
+    <input
+      id="champMessage"
+      autocomplete="off"
+      placeholder="Tape ton message..."
+    />
     <button>Envoyer</button>
   </form>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const username = sessionStorage.getItem('username');
-    if (!username) window.location.href = 'login.html';
 
-    socket.emit('reconnect username', username);
+    const nomUtilisateur = sessionStorage.getItem('nomUtilisateur');
+    if (!nomUtilisateur) {
+      window.location.href = 'login.html';
+    }
 
-    const messages = document.getElementById('messages');
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
+    // Reconnexion avec le nom d'utilisateur
+    socket.emit('reconnexion utilisateur', nomUtilisateur);
 
-    messages.innerHTML += `<li>Bienvenue ${username} !</li>`;
+    const listeMessages = document.getElementById('messages');
+    const formulaireMessage = document.getElementById('formulaireMessage');
+    const champMessage = document.getElementById('champMessage');
 
-    socket.on('chat message', (msg) => {
-      const item = document.createElement('li');
-      item.textContent = msg;
-      messages.appendChild(item);
-      messages.scrollTop = messages.scrollHeight;
+    // Message de bienvenue
+    listeMessages.innerHTML += `<li>Bienvenue ${nomUtilisateur} !</li>`;
+
+    socket.on('message chat', (message) => {
+      const element = document.createElement('li');
+      element.textContent = message;
+      listeMessages.appendChild(element);
+      listeMessages.scrollTop = listeMessages.scrollHeight;
     });
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const msg = input.value.trim();
-      if (msg) {
-        socket.emit('chat message', msg);
-        input.value = '';
+    formulaireMessage.addEventListener('submit', (evenement) => {
+      evenement.preventDefault();
+      const message = champMessage.value.trim();
+
+      if (message) {
+        socket.emit('message chat', message);
+        champMessage.value = '';
       }
     });
   </script>

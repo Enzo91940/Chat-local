@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Connexion</title>
+
   <style>
     * {
       box-sizing: border-box;
@@ -65,7 +66,7 @@
       background-color: #1a5de4;
     }
 
-    #error {
+    #messageErreur {
       color: red;
       margin-top: 17px;
     }
@@ -80,50 +81,57 @@
       text-decoration: none;
       font-weight: 600;
     }
-
-   
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2>Connexion</h2>
-    <form id="loginForm">
-      <label for="username">Pseudo</label>
-      <input type="text" id="username" required />
 
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" required />
+    <form id="formulaireConnexion">
+      <label for="nomUtilisateur">Pseudo</label>
+      <input type="text" id="nomUtilisateur" required />
+
+      <label for="motDePasse">Mot de passe</label>
+      <input type="password" id="motDePasse" required />
 
       <button type="submit">Se connecter</button>
     </form>
-    <p id="error"></p>
-    <p class="link">Pas encore inscrit ? <a href="register.html">Créer un compte</a></p>
+
+    <p id="messageErreur"></p>
+
+    <p class="link">
+      Pas encore inscrit ?
+      <a href="register.html">Créer un compte</a>
+    </p>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const form = document.getElementById('loginForm');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const error = document.getElementById('error');
 
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      error.textContent = '';
-      socket.emit('login', {
-        username: usernameInput.value.trim(),
-        password: passwordInput.value.trim()
+    const formulaireConnexion = document.getElementById('formulaireConnexion');
+    const champNomUtilisateur = document.getElementById('nomUtilisateur');
+    const champMotDePasse = document.getElementById('motDePasse');
+    const messageErreur = document.getElementById('messageErreur');
+
+    formulaireConnexion.addEventListener('submit', (evenement) => {
+      evenement.preventDefault();
+      messageErreur.textContent = '';
+
+      socket.emit('connexion', {
+        nomUtilisateur: champNomUtilisateur.value.trim(),
+        motDePasse: champMotDePasse.value.trim()
       });
     });
 
-    socket.on('login success', username => {
-      sessionStorage.setItem('username', username);
+    socket.on('succes connexion', (nomUtilisateur) => {
+      sessionStorage.setItem('nomUtilisateur', nomUtilisateur);
       window.location.href = 'chat.html';
     });
 
-    socket.on('login error', msg => {
-      error.textContent = msg;
+    socket.on('erreur connexion', (message) => {
+      messageErreur.textContent = message;
     });
   </script>
 </body>
